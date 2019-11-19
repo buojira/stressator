@@ -6,28 +6,31 @@ import org.springframework.stereotype.Component;
 @Component
 public class BrokerProperties {
 
-    @Value("${fluig.locksmith.queue.name}")
+    @Value("${application.exchange}")
+    private String exchangeName;
+
+    @Value("${application.queue.name}")
     private String queueName;
 
-    @Value("${fluig.locksmith.app.code}")
+    @Value("${application.code}")
     private String appCode;
 
-    @Value("${fluig.locksmith.tags}")
+    @Value("${broker.listener.tags}")
     private String tags;
 
-    @Value("${fluig.broker.host}")
+    @Value("${broker.host}")
     private String brokerHost;
 
-    @Value("${fluig.broker.port}")
+    @Value("${broker.port}")
     private String brokerPort;
 
-    @Value("${fluig.broker.username}")
+    @Value("${broker.username}")
     private String brokerUserName;
 
-    @Value("${fluig.broker.password}")
+    @Value("${broker.password}")
     private String brokerPassword;
 
-    @Value("${fluig.broker.virtual.host}")
+    @Value("${broker.virtual.host}")
     private String virtualHost;
 
     public String getQueueName() {
@@ -62,4 +65,7 @@ public class BrokerProperties {
         return virtualHost;
     }
 
+    public String getExchangeName() {
+        return exchangeName;
+    }
 }

@@ -35,9 +35,9 @@ public class RabbitConnector {
         try {
 
             ChannelControllerDTO dto = ChannelControllerDTOBuilder.of()
-                    .exchangeName("STRESSATOR.FANOUT-REPLICATOR.V1")
-                    .routingKey("STRESSATOR-REPLICATOR.V1")
-                    .queueName("STRESSATOR-REPLICATOR.V1")
+                    .exchangeName(properties.getExchangeName())
+                    .routingKey(properties.getQueueName())
+                    .queueName(properties.getQueueName())
                     .build();
 
             System.out.println("DataConnection: " + dto);
@@ -46,7 +46,12 @@ public class RabbitConnector {
 
             System.out.println("Fanout Channel Opened");
 
-            controller.addListener(new RabbitListener(controller.getChannel(), properties.getTags()));
+            controller.addListener(
+                    new RabbitListener(
+                            controller.getChannel(),
+                            properties.getTags()
+                    )
+            );
             System.out.println("I am listening ... ");
 
         } catch (BrokerException e) {
