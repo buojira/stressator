@@ -25,7 +25,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <skip.integration.tests>false</skip.integration.tests>
-        <check.style>true</check.style>
+        <check.style>false</check.style>
 
         <compiler.plugin.version>3.8.0</compiler.plugin.version>
         <source.plugin.version>3.0.1</source.plugin.version>
@@ -195,6 +195,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire.plugin.version}</version>
                 <configuration>
+                    <forkCount>0</forkCount>
                     <argLine>
                         <!-- ${argLine} - necessário para funcionar o jacoco corretamente-->
                         ${argLine} --illegal-access=permit
