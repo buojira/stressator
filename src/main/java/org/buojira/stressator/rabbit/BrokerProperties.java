@@ -1,6 +1,7 @@
 package org.buojira.stressator.rabbit;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.stereotype.Component;
 
 @Component
