@@ -32,6 +32,7 @@ public class BrokerOverloadService {
 
         String hostName = InetAddress.getLocalHost().getHostName();
         long messageCount = 0;
+
         while ((current - beginning) < timeLimit) {
             messageCount++;
             current = Calendar.getInstance().getTimeInMillis();
@@ -40,6 +41,7 @@ public class BrokerOverloadService {
                 System.out.println(formatter.format(messageCount) + " messages sent.");
             }
         }
+
         float timeTaken = current - beginning;
 
         System.out.println(" ");
@@ -77,6 +79,7 @@ public class BrokerOverloadService {
         int partial1;
         int partial2 = 0;
         Number received = 0;
+
         while (received.intValue() == 0) {
             partial1 = consumerService.getTotalAmmount();
             System.out.println("p1:"
@@ -130,6 +133,7 @@ public class BrokerOverloadService {
         System.out.println("---------- ANALYSIS REPORT's END ---------");
         System.out.println("------------------------------------------");
         System.out.println(" ");
+
     }
 
     private Number sumUp(Number[] values) {
