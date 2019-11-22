@@ -69,4 +69,20 @@ public class BrokerProperties {
     public String getExchangeName() {
         return exchangeName;
     }
+
+    public void setBrokerHost(String brokerHost) {
+        this.brokerHost = brokerHost;
+    }
+
+    public void setBrokerPort(String brokerPort) {
+        this.brokerPort = brokerPort;
+    }
+
+    public void setBrokerUserName(String brokerUserName) {
+        this.brokerUserName = brokerUserName;
+    }
+
+    public void setBrokerPassword(String brokerPassword) {
+        this.brokerPassword = brokerPassword;
+    }
 }

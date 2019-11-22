@@ -34,7 +34,7 @@
   <properties>
     <flatten.plugin.version>1.1.0</flatten.plugin.version>
     <jolokia.version>1.5.0</jolokia.version>
-    <skip.integration.tests>false</skip.integration.tests>
+    <skip.integration.tests>true</skip.integration.tests>
     <source.plugin.version>3.0.1</source.plugin.version>
     <surefire.plugin.version>2.22.0</surefire.plugin.version>
     <jaxb.version>2.3.0</jaxb.version>

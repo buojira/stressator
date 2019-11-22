@@ -38,7 +38,17 @@ public class RabbitMQBrokerClient {
     public BrokerClient getBrokerClient() {
 
         if (brokerClient == null) {
-
+            System.out.println(" ");
+            System.out.println(" **************** ");
+            System.out.println(" **************** ");
+            System.out.println(" Connecting Rabbit ... ");
+            System.out.println("     Host: " + properties.getBrokerHost());
+            System.out.println("     Port: " + properties.getBrokerPort());
+            System.out.println("    Login: " + properties.getBrokerUserName());
+            System.out.println(" Password: " + properties.getBrokerPassword());
+            System.out.println(" **************** ");
+            System.out.println(" **************** ");
+            System.out.println(" ");
             brokerClient = new BrokerClient(
                     ConnectionVOBuilder.of()
                             .host(properties.getBrokerHost())
