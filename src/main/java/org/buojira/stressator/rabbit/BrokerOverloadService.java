@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.NumberFormat;
 import java.util.Calendar;
+import java.util.Map;
 
 import org.buojira.stressator.Formatter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,13 +78,13 @@ public class BrokerOverloadService {
         int partial2 = 0;
         Number received = 0;
         while (received.intValue() == 0) {
-            partial1 = consumerService.getMessageAmmount();
+            partial1 = consumerService.getTotalAmmount();
             System.out.println("p1:"
                     + formatter.format(partial1)
                     + " | p2:"
                     + formatter.format(partial2));
             if (partial2 > 0 && partial1 == partial2) {
-                received = consumerService.getMessageAmmount();
+                received = consumerService.getTotalAmmount();
             } else {
                 partial2 = partial1;
             }
@@ -114,6 +115,16 @@ public class BrokerOverloadService {
         System.out.println("         Rate: " + formatter.format(
                 (totalOfSentMessages.floatValue() / duration.floatValue())
         ) + " msg/millisecond");
+        System.out.println(" ");
+        System.out.println(" ++++ ");
+        System.out.println(" ");
+        Map<String, Long> map = consumerService.getCounterMap();
+        for (String key : map.keySet()) {
+            Long value = map.get(key);
+            System.out.println(key + " | " + value);
+        }
+        System.out.println(" ");
+        System.out.println(" ++++ ");
         System.out.println(" ");
         System.out.println("------------------------------------------");
         System.out.println("---------- ANALYSIS REPORT's END ---------");

@@ -1,5 +1,8 @@
 package org.buojira.stressator.rabbit;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import org.springframework.stereotype.Service;
 
 import com.fluig.broker.controller.ChannelController;
@@ -10,18 +13,18 @@ public class MessageConsumerService {
 
     private final RabbitMQBrokerClient client;
     private final BrokerProperties properties;
-    private String host;
-    private int messageNumber;
-    private int messageAmmount;
+    private int totalAmmount;
+    private Map<String, Long> counterMap;
 
     public MessageConsumerService(BrokerProperties properties) {
+        counterMap = new TreeMap<>();
         this.properties = properties;
         this.client = new RabbitMQBrokerClient(properties);
     }
 
     public void startupListener() {
         try {
-            messageAmmount = 0;
+            totalAmmount = 0;
             ChannelController channelController = client.getChannel();
             MessageConsumer consumer = new MessageConsumer(
                     channelController.getChannel(),
@@ -35,28 +38,22 @@ public class MessageConsumerService {
         }
     }
 
-    public int getMessageNumber() {
-        return messageNumber;
+    public void countMessage(String host) {
+        totalAmmount++;
+        Long value = counterMap.get(host);
+        if (value != null) {
+            counterMap.put(host, value.longValue() + 1L);
+        } else {
+            counterMap.put(host, 1L);
+        }
     }
 
-    public void setMessageNumber(int messageNumber) {
-        this.messageNumber = messageNumber;
+    public int getTotalAmmount() {
+        return totalAmmount;
     }
 
-    public void countMessage() {
-        messageAmmount++;
-    }
-
-    public int getMessageAmmount() {
-        return messageAmmount;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
+    public Map<String, Long> getCounterMap() {
+        return counterMap;
     }
 
 }
