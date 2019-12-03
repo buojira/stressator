@@ -54,9 +54,25 @@ public class MessageConsumer extends RabbitMQAbstractConsumer<String> {
     @Override
     public void handleDelivery(BrokerRequestHeader brokerRequestHeader, String register) {
         String[] split = register.split("\\|");
-        service.countMessage(split[0]);
-        if (service.getTotalAmmount() % 10000 == 0) {
+        countMessage(split[0]);
+        if (getTotalAmmount() % 10000 == 0) {
             System.out.println(register);
+        }
+    }
+
+    protected int getTotalAmmount() {
+        return service.getTotalAmmount();
+    }
+
+    protected void countMessage(String host) {
+        service.countMessage(host);
+    }
+
+    protected void wait4It(Number milliseconds) {
+        try {
+            Thread.sleep(milliseconds.longValue());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

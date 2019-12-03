@@ -34,6 +34,9 @@ public class BrokerProperties {
     @Value("${broker.virtual.host}")
     private String virtualHost;
 
+    @Value("${application.status.queue}")
+    private String brokerStatusQueue;
+
     public String getQueueName() {
         return queueName;
     }
@@ -85,4 +88,21 @@ public class BrokerProperties {
     public void setBrokerPassword(String brokerPassword) {
         this.brokerPassword = brokerPassword;
     }
+
+    public void setExchangeName(String exchangeName) {
+        this.exchangeName = exchangeName;
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
+    }
+
+    public String getBrokerStatusQueue() {
+        return brokerStatusQueue;
+    }
+
+    public void setBrokerStatusQueue(String brokerStatusQueue) {
+        this.brokerStatusQueue = brokerStatusQueue;
+    }
+
 }

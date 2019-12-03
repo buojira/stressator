@@ -18,7 +18,7 @@ public class MessagesWithListenerIT extends StressatorBaseIT {
 
     @Before
     public void before() {
-        consumer.startupListener();
+        consumer.startupProcessingListener();
     }
 
     @Test

@@ -43,9 +43,19 @@ public class StressatorService {
         if (actionDecider.getRabbitMQPassword() != null) {
             brokerProperties.setBrokerPassword(actionDecider.getRabbitMQPassword());
         }
+        if (actionDecider.getRabbitAppExchange() != null) {
+            brokerProperties.setExchangeName(actionDecider.getRabbitAppExchange());
+        }
+        if (actionDecider.getRabbitAppQueue() != null) {
+            brokerProperties.setQueueName(actionDecider.getRabbitAppQueue());
+        }
+        if (actionDecider.getRabbitStatusQueue() != null) {
+            brokerProperties.setBrokerStatusQueue(actionDecider.getRabbitStatusQueue());
+        }
     }
 
     private void stressRabbitMQ(Number duration) {
+
         System.out.println(" ");
         System.out.println("---------------------------------------");
         System.out.println("---------------------------------------");
@@ -53,6 +63,7 @@ public class StressatorService {
         System.out.println("---------------------------------------");
         System.out.println("---------------------------------------");
         System.out.println(" ");
+
         try {
             overloadService.ddsThresholdTest(duration);
         } catch (Exception e) {
@@ -61,6 +72,7 @@ public class StressatorService {
     }
 
     private void analyseRabbitServer(Number[] durations, Number[] totals) {
+
         System.out.println(" ");
         System.out.println("---------------------------------------");
         System.out.println("---------------------------------------");
@@ -68,7 +80,9 @@ public class StressatorService {
         System.out.println("---------------------------------------");
         System.out.println("---------------------------------------");
         System.out.println(" ");
+
         overloadService.ddsAnalysisTest(durations, totals);
+
     }
 
 }

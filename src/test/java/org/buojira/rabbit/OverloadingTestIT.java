@@ -67,17 +67,19 @@ public class OverloadingTestIT extends StressatorBaseIT {
         final Number duration = sumUp(durations);
         final Number totalOfSentMessages = sumUp(totals);
 
-        consumerService.startupListener();
+        consumerService.startupProcessingListener();
 
         int partial1;
         int partial2 = 0;
         Number received = 0;
         while (received.intValue() == 0) {
             partial1 = consumerService.getTotalAmmount();
+
             System.out.println("p1:"
                     + formatter.format(partial1)
                     + " | p2:"
                     + formatter.format(partial2));
+
             if (partial2 > 0 && partial1 == partial2) {
                 received = consumerService.getTotalAmmount();
             } else {

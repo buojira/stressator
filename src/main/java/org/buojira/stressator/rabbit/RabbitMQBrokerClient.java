@@ -10,16 +10,33 @@ import com.fluig.broker.exception.BrokerException;
 public class RabbitMQBrokerClient {
 
     private final BrokerProperties properties;
-    private ChannelController channelController;
+    private ChannelController processingChannel;
+    private ChannelController statusChannel;
     private BrokerClient brokerClient;
 
     public RabbitMQBrokerClient(BrokerProperties properties) {
         this.properties = properties;
     }
 
-    public ChannelController getChannel() throws BrokerException {
+    public ChannelController getStatusChannel() throws BrokerException {
+        if (statusChannel == null) {
 
-        if (channelController == null) {
+            ChannelControllerDTO dto = ChannelControllerDTOBuilder.of()
+                    .exchangeName(properties.getExchangeName())
+                    .routingKey(properties.getBrokerStatusQueue())
+                    .queueName(properties.getBrokerStatusQueue())
+                    .build();
+
+            statusChannel = getBrokerClient()
+                    .createDirectChannel(dto);
+
+        }
+        return statusChannel;
+    }
+
+    public ChannelController getProcessingChannel() throws BrokerException {
+
+        if (processingChannel == null) {
 
             ChannelControllerDTO dto = ChannelControllerDTOBuilder.of()
                     .exchangeName(properties.getExchangeName())
@@ -27,28 +44,36 @@ public class RabbitMQBrokerClient {
                     .queueName(properties.getQueueName())
                     .build();
 
-            channelController = getBrokerClient()
-                    .createFanoutChannel(dto);
+            processingChannel = getBrokerClient()
+                    .createDirectChannel(dto);
 
         }
 
-        return channelController;
+        return processingChannel;
+
     }
 
     public BrokerClient getBrokerClient() {
 
         if (brokerClient == null) {
+
             System.out.println(" ");
             System.out.println(" **************** ");
             System.out.println(" **************** ");
+            System.out.println(" ");
             System.out.println(" Connecting Rabbit ... ");
-            System.out.println("     Host: " + properties.getBrokerHost());
-            System.out.println("     Port: " + properties.getBrokerPort());
-            System.out.println("    Login: " + properties.getBrokerUserName());
-            System.out.println(" Password: " + properties.getBrokerPassword());
+            System.out.println("         Host: " + properties.getBrokerHost());
+            System.out.println("         Port: " + properties.getBrokerPort());
+            System.out.println("        Login: " + properties.getBrokerUserName());
+            System.out.println("     Password: " + properties.getBrokerPassword());
+            System.out.println("     Exchange: " + properties.getExchangeName());
+            System.out.println("        Queue: " + properties.getQueueName());
+            System.out.println(" Status Queue: " + properties.getBrokerStatusQueue());
+            System.out.println(" ");
             System.out.println(" **************** ");
             System.out.println(" **************** ");
             System.out.println(" ");
+
             brokerClient = new BrokerClient(
                     ConnectionVOBuilder.of()
                             .host(properties.getBrokerHost())
@@ -62,6 +87,7 @@ public class RabbitMQBrokerClient {
         }
 
         return brokerClient;
+
     }
 
 }

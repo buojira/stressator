@@ -12,6 +12,9 @@ public class ActionDecider {
     public static final String BROKER_PORT = "broker.port";
     public static final String BROKER_USER = "broker.username";
     public static final String BROKER_PASS = "broker.password";
+    public static final String APP_EXCHANGE = "application.exchange";
+    public static final String APP_QUEUE = "application.queue.name";
+    public static final String STATUS_QUEUE = "application.status.queue";
     public static final String DURATION = "duration";
     public static final String DURATIONS = "durations";
     public static final String TOTALS = "totals";
@@ -24,6 +27,9 @@ public class ActionDecider {
     private Number rabbitMQPort;
     private String rabbitMQUSER;
     private String rabbitMQPassword;
+    private String rabbitAppExchange;
+    private String rabbitAppQueue;
+    private String rabbitStatusQueue;
 
     public ActionDecider(String[] params) {
         setDefaultValues();
@@ -50,6 +56,9 @@ public class ActionDecider {
         rabbitMQPort = getNumericProperty(argLine, BROKER_PORT, null);
         rabbitMQUSER = getProperty(argLine, BROKER_USER, null);
         rabbitMQPassword = getProperty(argLine, BROKER_PASS, null);
+        rabbitAppExchange = getProperty(argLine, APP_EXCHANGE, null);
+        rabbitAppQueue = getProperty(argLine, APP_QUEUE, null);
+        rabbitStatusQueue = getProperty(argLine, STATUS_QUEUE, null);
     }
 
     private Number getNumericProperty(String argLine, String property, Number defaultValue) {
@@ -141,6 +150,18 @@ public class ActionDecider {
             return 5;
         }
 
+    }
+
+    public String getRabbitStatusQueue() {
+        return rabbitStatusQueue;
+    }
+
+    public String getRabbitAppExchange() {
+        return rabbitAppExchange;
+    }
+
+    public String getRabbitAppQueue() {
+        return rabbitAppQueue;
     }
 
     public Number[] getTotals() throws ParseException {

@@ -19,7 +19,11 @@ public class MessageProducerService {
     }
 
     public void sendSomething(String message) throws BrokerException {
-        client.getChannel().sendMessage(createRequest(message));
+        client.getProcessingChannel().sendMessage(createRequest(message));
+    }
+
+    public void notifyArrival(String register) throws BrokerException {
+        client.getStatusChannel().sendMessage(createRequest(register));
     }
 
     private BrokerRequest createRequest(String message) {

@@ -22,17 +22,59 @@ public class MessageConsumerService {
         this.client = new RabbitMQBrokerClient(properties);
     }
 
-    public void startupListener() {
+    public void startupProcessingListener() {
         try {
+
             totalAmmount = 0;
-            ChannelController channelController = client.getChannel();
+            ChannelController channelController = client.getProcessingChannel();
             MessageConsumer consumer = new MessageConsumer(
                     channelController.getChannel(),
                     properties.getTags(),
                     this
             );
             channelController.addListener(consumer);
-            System.out.println("I am listening ... ");
+
+            System.out.println("I am listening and processing... ");
+
+        } catch (BrokerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void startupSecureProcessingListener(MessageProducerService producerService) {
+        try {
+
+            totalAmmount = 0;
+            ChannelController channelController = client.getProcessingChannel();
+            MessageConsumer consumer = new MessageForwardConsumer(
+                    channelController.getChannel(),
+                    properties.getTags(),
+                    this,
+                    producerService
+            );
+            channelController.addListener(consumer);
+
+            System.out.println("I am listening and processing, and sending arrival notice... ");
+
+        } catch (BrokerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void startupStatusListener(Map<String, Number> codingMap) {
+        try {
+
+            ChannelController channelController = client.getStatusChannel();
+            MessageConsumer consumer = new ArrivalWarrancyConsumer(
+                    channelController.getChannel(),
+                    properties.getTags(),
+                    this,
+                    codingMap
+            );
+            channelController.addListener(consumer);
+
+            System.out.println("I am listening and monitoring... ");
+
         } catch (BrokerException e) {
             e.printStackTrace();
         }
