@@ -8,16 +8,16 @@ import com.fluig.broker.exception.BrokerException;
 
 public class ArrivalMonitor implements Runnable {
     private final MessageProducerService producerService;
-    private final Map<String, Number> map
-            ;
-    public ArrivalMonitor(MessageProducerService producerService, Map<String, Number> map) {
+
+
+    public ArrivalMonitor(MessageProducerService producerService) {
         this.producerService = producerService;
-        this.map = map;
     }
 
     @Override
     public void run() {
         wait4It(10 * 1000);
+        Map<String, Number> map = MessageRepository.getInstance().getQueueAgeMap();
         while (!map.isEmpty()) {
             System.out.println("Checking for undelivered messages  ****************** ");
             Object[] keys = map.keySet().toArray();

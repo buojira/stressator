@@ -9,10 +9,9 @@ public class ArrivalWarrancyConsumer extends MessageConsumer {
 
     private final Map<String, Number> codingMap;
 
-    public ArrivalWarrancyConsumer(ChannelVO channel, String consumerTag, MessageConsumerService service,
-            Map<String, Number> codingMap) {
+    public ArrivalWarrancyConsumer(ChannelVO channel, String consumerTag, MessageConsumerService service) {
         super(channel, consumerTag, service);
-        this.codingMap = codingMap;
+        this.codingMap = MessageRepository.getInstance().getQueueAgeMap();
     }
 
     @Override
@@ -24,6 +23,7 @@ public class ArrivalWarrancyConsumer extends MessageConsumer {
             codingMap.remove(register);
             System.out.println("+-- removed from map");
         }
-        wait4It(2000);
+//        wait4It(2000);
     }
+
 }

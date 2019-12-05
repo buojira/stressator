@@ -42,6 +42,7 @@ public class RabbitMQBrokerClient {
                     .exchangeName(properties.getExchangeName())
                     .routingKey(properties.getQueueName())
                     .queueName(properties.getQueueName())
+                    .callbackQueueName(properties.getBrokerStatusQueue())
                     .build();
 
             processingChannel = getBrokerClient()

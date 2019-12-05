@@ -7,7 +7,7 @@ import com.fluig.broker.exception.BrokerException;
 public class MessageForwardConsumer extends MessageConsumer {
 
     private MessageProducerService producerService;
-    private boolean looseIt = true;
+    private boolean looseIt = false;
 
     public MessageForwardConsumer(ChannelVO channel,
             String consumerTag,
@@ -35,7 +35,7 @@ public class MessageForwardConsumer extends MessageConsumer {
         } catch (BrokerException e) {
             e.printStackTrace();
         }
-        wait4It(2000);
+//        wait4It(2000);
     }
 
 }

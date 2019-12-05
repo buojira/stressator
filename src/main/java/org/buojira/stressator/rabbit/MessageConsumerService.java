@@ -11,7 +11,7 @@ import com.fluig.broker.exception.BrokerException;
 @Service
 public class MessageConsumerService {
 
-    private final RabbitMQBrokerClient client;
+    private RabbitMQBrokerClient client;
     private final BrokerProperties properties;
     private int totalAmmount;
     private Map<String, Long> counterMap;
@@ -19,14 +19,17 @@ public class MessageConsumerService {
     public MessageConsumerService(BrokerProperties properties) {
         counterMap = new TreeMap<>();
         this.properties = properties;
-        this.client = new RabbitMQBrokerClient(properties);
     }
 
     public void startupProcessingListener() {
+        startupProcessingListener(properties);
+    }
+
+    public void startupProcessingListener(BrokerProperties props) {
         try {
 
             totalAmmount = 0;
-            ChannelController channelController = client.getProcessingChannel();
+            ChannelController channelController = getClient(props).getProcessingChannel();
             MessageConsumer consumer = new MessageConsumer(
                     channelController.getChannel(),
                     properties.getTags(),
@@ -42,10 +45,14 @@ public class MessageConsumerService {
     }
 
     public void startupSecureProcessingListener(MessageProducerService producerService) {
+        startupSecureProcessingListener(producerService, properties);
+    }
+
+    public void startupSecureProcessingListener(MessageProducerService producerService, BrokerProperties props) {
         try {
 
             totalAmmount = 0;
-            ChannelController channelController = client.getProcessingChannel();
+            ChannelController channelController = getClient(props).getProcessingChannel();
             MessageConsumer consumer = new MessageForwardConsumer(
                     channelController.getChannel(),
                     properties.getTags(),
@@ -61,15 +68,18 @@ public class MessageConsumerService {
         }
     }
 
-    public void startupStatusListener(Map<String, Number> codingMap) {
+    public void startupStatusListener() {
+        startupStatusListener(properties);
+    }
+
+    public void startupStatusListener(BrokerProperties props) {
         try {
 
-            ChannelController channelController = client.getStatusChannel();
+            ChannelController channelController = getClient(props).getStatusChannel();
             MessageConsumer consumer = new ArrivalWarrancyConsumer(
                     channelController.getChannel(),
                     properties.getTags(),
-                    this,
-                    codingMap
+                    this
             );
             channelController.addListener(consumer);
 
@@ -98,4 +108,10 @@ public class MessageConsumerService {
         return counterMap;
     }
 
+    private RabbitMQBrokerClient getClient(BrokerProperties props) {
+        if (client == null) {
+            client = new RabbitMQBrokerClient(props);
+        }
+        return client;
+    }
 }

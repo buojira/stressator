@@ -105,4 +105,15 @@ public class BrokerProperties {
         this.brokerStatusQueue = brokerStatusQueue;
     }
 
+    public void setAppCode(String appCode) {
+        this.appCode = appCode;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
+    public void setVirtualHost(String virtualHost) {
+        this.virtualHost = virtualHost;
+    }
 }

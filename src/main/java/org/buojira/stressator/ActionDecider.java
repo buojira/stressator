@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 public class ActionDecider {
 
     public static final String ACTION_TEST_RABBITMQ_DDS = "ddsrabbitmq";
+    public static final String ACTION_TEST_SEND_N_WAIT = "sendnwait";
     public static final String ACTION_CLEAR_RABBITMQ = "clearrabbitmq";
     public static final String BROKER_HOST = "broker.host";
     public static final String BROKER_PORT = "broker.port";
@@ -23,6 +24,7 @@ public class ActionDecider {
 
     private boolean testRabbitMQDDS;
     private boolean clearRabbitMQ;
+    private boolean sendnwait;
     private String rabbitMQHost;
     private Number rabbitMQPort;
     private String rabbitMQUSER;
@@ -32,7 +34,6 @@ public class ActionDecider {
     private String rabbitStatusQueue;
 
     public ActionDecider(String[] params) {
-        setDefaultValues();
         argLine = getArgLine(params);
 
         System.out.println(" ");
@@ -45,10 +46,6 @@ public class ActionDecider {
 
         setActions(argLine);
         setBrokerProperties(argLine);
-    }
-
-    private void setDefaultValues() {
-        testRabbitMQDDS = false;
     }
 
     private void setBrokerProperties(String argLine) {
@@ -92,6 +89,10 @@ public class ActionDecider {
                 "\\W"
         );
 
+        testRabbitMQDDS = false;
+        sendnwait = false;
+        clearRabbitMQ = false;
+
         for (int i = 0; i < actions.length; i++) {
             switch (actions[i].trim()) {
                 case ACTION_TEST_RABBITMQ_DDS:
@@ -99,6 +100,9 @@ public class ActionDecider {
                     break;
                 case ACTION_CLEAR_RABBITMQ:
                     clearRabbitMQ = true;
+                    break;
+                case ACTION_TEST_SEND_N_WAIT:
+                    sendnwait = true;
                     break;
             }
         }
@@ -141,11 +145,11 @@ public class ActionDecider {
 
     public Number getDuration() {
         Matcher matcher = Pattern.compile(
-                DURATION + "[\\=\\:]([\\d;]+)"
+                DURATION + "[\\=\\:]([\\d\\.]+)"
         ).matcher(argLine.toLowerCase());
 
         if (matcher.find()) {
-            return Integer.valueOf(matcher.group(1));
+            return Float.valueOf(matcher.group(1));
         } else {
             return 5;
         }
@@ -198,6 +202,10 @@ public class ActionDecider {
             return actions.split(regexArgSeparator);
         }
         return new String[]{""};
+    }
+
+    public boolean isSendNWait() {
+        return sendnwait;
     }
 
 }

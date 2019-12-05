@@ -5,7 +5,7 @@ import java.net.UnknownHostException;
 import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Queue;
 
 import org.buojira.stressator.Formatter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,19 +22,37 @@ public class BrokerOverloadService {
     @Autowired
     private MessageConsumerService consumerService;
 
-    public Map<String, Number> startUpListeners() {
-        Map<String, Number> map = new TreeMap<>();
-        consumerService.startupSecureProcessingListener(producerService);
-        consumerService.startupStatusListener(map);
-        new Thread(new ArrivalMonitor(producerService, map)).start();
-        return map;
+    public Map<String, Number> startUpListeners(BrokerProperties properties) {
+        if (properties != null) {
+            consumerService.startupSecureProcessingListener(producerService, properties);
+            consumerService.startupStatusListener(properties);
+        } else {
+            consumerService.startupSecureProcessingListener(producerService);
+            consumerService.startupStatusListener();
+        }
+        new Thread(new ArrivalMonitor(producerService)).start();
+        return MessageRepository.getInstance().getQueueAgeMap();
     }
 
-    public void sendAndControllerPayload(Number duration) throws UnknownHostException, BrokerException, InterruptedException {
+    public String send(BrokerProperties props, String hostName, long messageCount) throws BrokerException {
+        String key = hostName + "|" + messageCount;
+        if (props != null) {
+            producerService.sendSomething(props, key);
+        } else {
+            producerService.sendSomething(key);
+        }
+        if (messageCount % 5000 == 0) {
+            System.out.println(Formatter.DECIMAL_FORMAT.format(messageCount) + " messages sent.");
+        }
+        return key;
+    }
 
-        Map<String, Number> map = startUpListeners();
+    public void sendAndControlPayload(Number duration) throws UnknownHostException, BrokerException, InterruptedException {
+        sendAndControlPayload(null, duration);
+    }
 
-        NumberFormat formatter = Formatter.DECIMAL_FORMAT;
+    public void sendAndWait(BrokerProperties props, Number duration) throws UnknownHostException, BrokerException, InterruptedException {
+
         final Number timeLimit = (duration != null) ? (duration.floatValue() * 1000) : 5000;
         long beginning = Calendar.getInstance().getTimeInMillis();
         long current = beginning;
@@ -45,25 +63,73 @@ public class BrokerOverloadService {
             messageCount++;
             current = Calendar.getInstance().getTimeInMillis();
             String key = hostName + "|" + messageCount;
-            map.put(key, current);
-            producerService.sendSomething(key);
-            System.out.println(formatter.format(messageCount) + " messages sent.");
-            Thread.sleep(500L);
+            producerService.queueMessage(props, key);
         }
+
+        System.out.println(" ");
+        System.out.println(" ***************************** ");
+        System.out.println(messageCount + " queued Messages");
+        System.out.println(" ***************************** ");
+        System.out.println(" ");
+
+        producerService.processQueue(props);
+
+        Queue<String> cache = MessageRepository.getInstance().getMessageCache();
+        while (!cache.isEmpty()) {
+            System.out.println(" ***************************** ");
+            System.out.println("> Cache Size: " + cache.size());
+            System.out.println(" ***************************** ");
+            Thread.sleep(2000L);
+        }
+
+    }
+
+    public void sendAndControlPayload(BrokerProperties props, Number duration) throws UnknownHostException, BrokerException, InterruptedException {
+
+        Map<String, Number> map = startUpListeners(props);
+
+        final Number timeLimit = (duration != null) ? (duration.floatValue() * 1000) : 5000;
+        long beginning = Calendar.getInstance().getTimeInMillis();
+        long current = beginning;
+        long messageCount = 0;
+        String hostName = InetAddress.getLocalHost().getHostName();
+
+        while ((current - beginning) < timeLimit.longValue()) {
+            messageCount++;
+            current = Calendar.getInstance().getTimeInMillis();
+            map.put(send(props, hostName, messageCount), current);
+//            Thread.sleep(500L);
+        }
+
         writeDDSReport(current - beginning, hostName, messageCount);
-        System.out.println("Map Size: " + map.size());
+        System.out.println("> Map Size: " + map.size());
 
         System.out.println(" ");
         System.out.println(" ***************************** ");
         System.out.println(" ***************************** ");
         System.out.println(" ");
 
-        System.out.printf("Now let us check what happened");
+        System.out.printf("> Now let us check what happened");
         while (!map.isEmpty()) {
-            System.out.println("Map Size: " + map.size());
-            Thread.sleep(500L);
+            System.out.println("> Map Size: " + map.size());
+            Thread.sleep(1000L);
         }
-        System.out.println("And we are done here");
+        System.out.println("> And we are done here");
+/*
+        System.out.println(" ");
+        System.out.println(" ***************************** ");
+        System.out.println(" ***************************** ");
+        System.out.println(" ");
+        System.out.println(" Total Messages Sent: " + messageCount);
+        System.out.println(" Messages Sent Again: " + messageCount);
+        System.out.println(" ");
+        System.out.println(" ***************************** ");
+        System.out.println(" ***************************** ");
+        System.out.println(" ");
+
+ */
+
+
     }
 
     public void ddsThresholdTest(Number duration) throws BrokerException, UnknownHostException {

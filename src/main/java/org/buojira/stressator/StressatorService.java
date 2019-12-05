@@ -27,6 +27,8 @@ public class StressatorService {
             Number[] durations = actionDecider.getDurations();
             Number[] totals = actionDecider.getTotals();
             analyseRabbitServer(durations, totals);
+        } else if (actionDecider.isSendNWait()) {
+            stressButNotThatMuch(actionDecider.getDuration());
         }
     }
 
@@ -66,6 +68,23 @@ public class StressatorService {
 
         try {
             overloadService.ddsThresholdTest(duration);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void stressButNotThatMuch(Number duration) {
+
+        System.out.println(" ");
+        System.out.println("---------------------------------------");
+        System.out.println("---------------------------------------");
+        System.out.println("let us do it calmly");
+        System.out.println("---------------------------------------");
+        System.out.println("---------------------------------------");
+        System.out.println(" ");
+
+        try {
+            overloadService.sendAndWait(brokerProperties, duration);
         } catch (Exception e) {
             e.printStackTrace();
         }
