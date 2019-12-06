@@ -7,7 +7,8 @@ public final class RabbitMessageBuilder {
     public static RabbitMessage build() throws IOException {
         RabbitMessage rabbitMessage = new RabbitMessage();
         rabbitMessage.setContent(FileLoader.getInstance().getContent());
-        rabbitMessage.setId(IDGenerator.getInstance().generateID());
+        IDGenerator gen = IDGenerator.getInstance();
+        rabbitMessage.setId(gen.generateID(), gen.getCount());
         return rabbitMessage;
     }
 

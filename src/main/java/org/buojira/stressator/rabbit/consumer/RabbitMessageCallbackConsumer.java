@@ -25,7 +25,9 @@ public class RabbitMessageCallbackConsumer extends RabbitMessageConsumer {
     @Override
     public void handleDelivery(BrokerRequestHeader brokerRequestHeader,
             RabbitMessage vo) throws BrokerException {
-        System.out.println("RabbitMessageCallbackConsumer - ID: " + vo.getId());
+        if (vo.getCount() % 200 == 0) {
+            System.out.println("RabbitMessageCallbackConsumer - ID: " + vo.getId());
+        }
         sender.processRabbitQueue(properties);
     }
 

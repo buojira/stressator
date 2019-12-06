@@ -32,4 +32,8 @@ public class IDGenerator {
         return hostName + "|" + (count++) + "|" + UUID.randomUUID();
     }
 
+    public long getCount() {
+        return count;
+    }
+
 }
