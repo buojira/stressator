@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
 
+import org.buojira.stressator.file.RabbitMessage;
+
 import com.google.common.collect.Queues;
 
 public class MessageRepository {
@@ -12,6 +14,7 @@ public class MessageRepository {
 
     private final Map<String, Number> queueAgeMap;
     private final Queue<String> messageCache;
+    private final Queue<RabbitMessage> rabbitMessages;
 
     public static MessageRepository getInstance() {
         if (instance == null) {
@@ -23,6 +26,7 @@ public class MessageRepository {
     public MessageRepository() {
         queueAgeMap = new TreeMap<>();
         messageCache = Queues.newConcurrentLinkedQueue();
+        rabbitMessages = Queues.newConcurrentLinkedQueue();
     }
 
     public Map<String, Number> getQueueAgeMap() {
@@ -33,4 +37,11 @@ public class MessageRepository {
         return messageCache;
     }
 
+    public Queue<RabbitMessage> getRabbitMessagesCache() {
+        return rabbitMessages;
+    }
+
+    public boolean isRabbitMessageQueueEmpty() {
+        return rabbitMessages.isEmpty();
+    }
 }

@@ -2,7 +2,7 @@ package org.buojira.stressator;
 
 import java.text.ParseException;
 
-import org.buojira.stressator.rabbit.BrokerOverloadService;
+import org.buojira.stressator.rabbit.service.BrokerOverloadService;
 import org.buojira.stressator.rabbit.BrokerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -100,7 +100,11 @@ public class StressatorService {
         System.out.println("---------------------------------------");
         System.out.println(" ");
 
-        overloadService.ddsAnalysisTest(durations, totals);
+        try {
+            overloadService.ddsAnalysisTest(brokerProperties, durations, totals);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
     }
 

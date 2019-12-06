@@ -1,14 +1,16 @@
-package org.buojira.stressator.rabbit;
+package org.buojira.stressator.rabbit.runner;
 
 import java.util.Calendar;
 import java.util.Map;
-import java.util.Set;
+
+import org.buojira.stressator.rabbit.MessageRepository;
+import org.buojira.stressator.rabbit.service.MessageProducerService;
 
 import com.fluig.broker.exception.BrokerException;
 
 public class ArrivalMonitor implements Runnable {
-    private final MessageProducerService producerService;
 
+    private final MessageProducerService producerService;
 
     public ArrivalMonitor(MessageProducerService producerService) {
         this.producerService = producerService;

@@ -1,7 +1,7 @@
 package org.buojira.rabbit;
 
-import org.buojira.stressator.rabbit.MessageConsumerService;
-import org.buojira.stressator.rabbit.MessageProducerService;
+import org.buojira.stressator.rabbit.service.MessageConsumerService;
+import org.buojira.stressator.rabbit.service.MessageProducerService;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

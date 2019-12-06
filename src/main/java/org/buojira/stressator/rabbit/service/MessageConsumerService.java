@@ -1,8 +1,14 @@
-package org.buojira.stressator.rabbit;
+package org.buojira.stressator.rabbit.service;
 
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.buojira.stressator.rabbit.BrokerProperties;
+import org.buojira.stressator.rabbit.RabbitMQBrokerClient;
+import org.buojira.stressator.rabbit.consumer.ArrivalWarrancyConsumer;
+import org.buojira.stressator.rabbit.consumer.MessageConsumer;
+import org.buojira.stressator.rabbit.consumer.MessageForwardConsumer;
+import org.buojira.stressator.rabbit.consumer.StressatorBaseConsumer;
 import org.springframework.stereotype.Service;
 
 import com.fluig.broker.controller.ChannelController;
@@ -76,10 +82,9 @@ public class MessageConsumerService {
         try {
 
             ChannelController channelController = getClient(props).getStatusChannel();
-            MessageConsumer consumer = new ArrivalWarrancyConsumer(
+            StressatorBaseConsumer consumer = new ArrivalWarrancyConsumer(
                     channelController.getChannel(),
-                    properties.getTags(),
-                    this
+                    properties.getTags()
             );
             channelController.addListener(consumer);
 

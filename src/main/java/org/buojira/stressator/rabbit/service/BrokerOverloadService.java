@@ -1,13 +1,18 @@
-package org.buojira.stressator.rabbit;
+package org.buojira.stressator.rabbit.service;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.Map;
-import java.util.Queue;
 
 import org.buojira.stressator.Formatter;
+import org.buojira.stressator.rabbit.BrokerProperties;
+import org.buojira.stressator.rabbit.MessageRepository;
+import org.buojira.stressator.rabbit.runner.ConsumersMonitor;
+import org.buojira.stressator.rabbit.runner.OneAtATimeSender;
+import org.buojira.stressator.rabbit.runner.QueueCleaner;
+import org.buojira.stressator.rabbit.runner.Worker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,18 +28,21 @@ public class BrokerOverloadService {
     private MessageConsumerService consumerService;
 
     public Map<String, Number> startUpListeners(BrokerProperties properties) {
-        if (properties != null) {
-            consumerService.startupSecureProcessingListener(producerService, properties);
-            consumerService.startupStatusListener(properties);
-        } else {
-            consumerService.startupSecureProcessingListener(producerService);
-            consumerService.startupStatusListener();
-        }
-        new Thread(new ArrivalMonitor(producerService)).start();
-        return MessageRepository.getInstance().getQueueAgeMap();
+
+        new Thread(
+                new ConsumersMonitor(
+                        producerService,
+                        consumerService,
+                        properties)
+        ).start();
+        return MessageRepository
+                .getInstance()
+                .getQueueAgeMap();
+
     }
 
     public String send(BrokerProperties props, String hostName, long messageCount) throws BrokerException {
+
         String key = hostName + "|" + messageCount;
         if (props != null) {
             producerService.sendSomething(props, key);
@@ -45,42 +53,44 @@ public class BrokerOverloadService {
             System.out.println(Formatter.DECIMAL_FORMAT.format(messageCount) + " messages sent.");
         }
         return key;
+
     }
 
-    public void sendAndControlPayload(Number duration) throws UnknownHostException, BrokerException, InterruptedException {
-        sendAndControlPayload(null, duration);
+    public Worker sendAndWait(BrokerProperties props, Number duration) {
+
+        Worker worker = new OneAtATimeSender(
+                producerService,
+                props,
+                duration);
+
+        new Thread(worker).start();
+
+        return worker;
+
     }
 
-    public void sendAndWait(BrokerProperties props, Number duration) throws UnknownHostException, BrokerException, InterruptedException {
+    public QueueCleaner clearQueues(BrokerProperties props) {
 
-        final Number timeLimit = (duration != null) ? (duration.floatValue() * 1000) : 5000;
-        long beginning = Calendar.getInstance().getTimeInMillis();
-        long current = beginning;
-        long messageCount = 0;
-        String hostName = InetAddress.getLocalHost().getHostName();
+        QueueCleaner cleaner = new QueueCleaner(consumerService, props);
 
-        while ((current - beginning) < timeLimit.longValue()) {
-            messageCount++;
-            current = Calendar.getInstance().getTimeInMillis();
-            String key = hostName + "|" + messageCount;
-            producerService.queueMessage(props, key);
+        new Thread(cleaner).start();
+
+        return cleaner;
+
+    }
+
+    public void ddsAnalysisTest(BrokerProperties props, Number[] durations, Number[] totals) throws InterruptedException {
+
+        final Number duration = sumUp(durations);
+        final Number totalOfSentMessages = sumUp(totals);
+
+        QueueCleaner cleaner = clearQueues(props);
+        while (!cleaner.isFinished()) {
+            System.out.println(">> wait for it...");
+            Thread.sleep(2000l);
         }
 
-        System.out.println(" ");
-        System.out.println(" ***************************** ");
-        System.out.println(messageCount + " queued Messages");
-        System.out.println(" ***************************** ");
-        System.out.println(" ");
-
-        producerService.processQueue(props);
-
-        Queue<String> cache = MessageRepository.getInstance().getMessageCache();
-        while (!cache.isEmpty()) {
-            System.out.println(" ***************************** ");
-            System.out.println("> Cache Size: " + cache.size());
-            System.out.println(" ***************************** ");
-            Thread.sleep(2000L);
-        }
+        writeAnalysisReport(duration, totalOfSentMessages, cleaner.getReceived());
 
     }
 
@@ -98,7 +108,6 @@ public class BrokerOverloadService {
             messageCount++;
             current = Calendar.getInstance().getTimeInMillis();
             map.put(send(props, hostName, messageCount), current);
-//            Thread.sleep(500L);
         }
 
         writeDDSReport(current - beginning, hostName, messageCount);
@@ -115,20 +124,6 @@ public class BrokerOverloadService {
             Thread.sleep(1000L);
         }
         System.out.println("> And we are done here");
-/*
-        System.out.println(" ");
-        System.out.println(" ***************************** ");
-        System.out.println(" ***************************** ");
-        System.out.println(" ");
-        System.out.println(" Total Messages Sent: " + messageCount);
-        System.out.println(" Messages Sent Again: " + messageCount);
-        System.out.println(" ");
-        System.out.println(" ***************************** ");
-        System.out.println(" ***************************** ");
-        System.out.println(" ");
-
- */
-
 
     }
 
@@ -155,43 +150,6 @@ public class BrokerOverloadService {
             }
         }
         writeDDSReport(current - beginning, hostName, messageCount);
-    }
-
-    public void ddsAnalysisTest(Number[] durations, Number[] totals) {
-
-        NumberFormat formatter = Formatter.DECIMAL_FORMAT;
-
-        final Number duration = sumUp(durations);
-        final Number totalOfSentMessages = sumUp(totals);
-
-        consumerService.startupProcessingListener();
-
-        int partial1;
-        int partial2 = 0;
-        Number received = 0;
-
-        while (received.intValue() == 0) {
-            partial1 = consumerService.getTotalAmmount();
-
-            System.out.println("p1:"
-                    + formatter.format(partial1)
-                    + " | p2:"
-                    + formatter.format(partial2));
-
-            if (partial2 > 0 && partial1 == partial2) {
-                received = consumerService.getTotalAmmount();
-            } else {
-                partial2 = partial1;
-            }
-            try {
-                Thread.sleep(1000L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        writeAnalysisReport(duration, totalOfSentMessages, received);
-
     }
 
     private Number sumUp(Number[] values) {

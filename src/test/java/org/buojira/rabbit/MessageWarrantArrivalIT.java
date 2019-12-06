@@ -3,8 +3,11 @@ package org.buojira.rabbit;
 import java.net.UnknownHostException;
 
 import org.assertj.core.api.Assertions;
-import org.buojira.stressator.rabbit.BrokerOverloadService;
 import org.buojira.stressator.rabbit.BrokerProperties;
+import org.buojira.stressator.rabbit.MessageRepository;
+import org.buojira.stressator.rabbit.runner.QueueCleaner;
+import org.buojira.stressator.rabbit.runner.Worker;
+import org.buojira.stressator.rabbit.service.BrokerOverloadService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,9 +25,22 @@ public class MessageWarrantArrivalIT extends StressatorBaseIT {
     }
 
     @Test
-    public void sendOneAtATime() throws InterruptedException, BrokerException, UnknownHostException {
-        target.sendAndWait(getQAFluigIO(), 0.1);
-        Assertions.assertThat(true).isTrue();
+    public void sendOneAtATime() throws InterruptedException {
+        BrokerProperties props = getQAFluigIO();
+
+        Worker sender = target.sendAndWait(props, 0.1);
+
+        while (!sender.isFinished()) {
+            Thread.sleep(5000l);
+        }
+
+        Worker cleaner = target.clearQueues(props);
+
+        while (!cleaner.isFinished()) {
+            Thread.sleep(5000l);
+        }
+
+        Assertions.assertThat(MessageRepository.getInstance().isRabbitMessageQueueEmpty()).isTrue();
     }
 
     @Test
@@ -41,7 +57,7 @@ public class MessageWarrantArrivalIT extends StressatorBaseIT {
     private BrokerProperties getQAFluigIO() {
         BrokerProperties props = new BrokerProperties();
         props.setBrokerHost("localhost");
-        props.setBrokerPort("443");
+        props.setBrokerPort("5672");
         props.setBrokerUserName("guest");
         props.setBrokerPassword("guest");
         props.setTags("stress_test");

@@ -1,4 +1,4 @@
-package org.buojira.stressator.rabbit;
+package org.buojira.stressator.rabbit.consumer;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

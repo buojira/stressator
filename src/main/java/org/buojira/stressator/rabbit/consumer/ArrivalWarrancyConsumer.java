@@ -1,16 +1,18 @@
-package org.buojira.stressator.rabbit;
+package org.buojira.stressator.rabbit.consumer;
 
 import java.util.Map;
+
+import org.buojira.stressator.rabbit.MessageRepository;
 
 import com.fluig.broker.domain.BrokerRequestHeader;
 import com.fluig.broker.domain.ChannelVO;
 
-public class ArrivalWarrancyConsumer extends MessageConsumer {
+public class ArrivalWarrancyConsumer extends StressatorBaseConsumer {
 
     private final Map<String, Number> codingMap;
 
-    public ArrivalWarrancyConsumer(ChannelVO channel, String consumerTag, MessageConsumerService service) {
-        super(channel, consumerTag, service);
+    public ArrivalWarrancyConsumer(ChannelVO channel, String consumerTag) {
+        super(channel, consumerTag);
         this.codingMap = MessageRepository.getInstance().getQueueAgeMap();
     }
 
@@ -23,7 +25,6 @@ public class ArrivalWarrancyConsumer extends MessageConsumer {
             codingMap.remove(register);
             System.out.println("+-- removed from map");
         }
-//        wait4It(2000);
     }
 
 }

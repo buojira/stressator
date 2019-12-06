@@ -1,4 +1,7 @@
-package org.buojira.stressator.rabbit;
+package org.buojira.stressator.rabbit.consumer;
+
+import org.buojira.stressator.rabbit.service.MessageConsumerService;
+import org.buojira.stressator.rabbit.service.MessageProducerService;
 
 import com.fluig.broker.domain.BrokerRequestHeader;
 import com.fluig.broker.domain.ChannelVO;
