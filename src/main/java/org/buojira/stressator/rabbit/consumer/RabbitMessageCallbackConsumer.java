@@ -26,7 +26,7 @@ public class RabbitMessageCallbackConsumer extends RabbitMessageConsumer {
     public void handleDelivery(BrokerRequestHeader brokerRequestHeader,
             RabbitMessage vo) throws BrokerException {
         if (vo.getCount() % 200 == 0) {
-            System.out.println("RabbitMessageCallbackConsumer - ID: " + vo.getId());
+            System.out.println(properties.getBrokerStatusQueue() + " - ID: " + vo.getId());
         }
         sender.processRabbitQueue(properties);
     }

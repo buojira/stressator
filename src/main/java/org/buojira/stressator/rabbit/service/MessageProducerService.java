@@ -20,12 +20,9 @@ import com.fluig.identity.utils.JsonConverter;
 @Service
 public class MessageProducerService {
 
-    private final BrokerProperties properties;
-    private RabbitMQBrokerClient client;
     private QueueConsumer callbackConsumer;
 
-    public MessageProducerService(BrokerProperties properties) {
-        this.properties = properties;
+    public MessageProducerService() {
     }
 
     public void queueMessage(BrokerProperties props,
@@ -38,7 +35,7 @@ public class MessageProducerService {
         if (!cache.isEmpty()) {
             String key = cache.poll();
             props.setTags(key);
-            getClient(props).getProcessingChannel()
+            getClient().getProcessingChannel(props)
                     .sendMessage(
                             createRequest(key),
                             getCallbackConsumer(props)
@@ -51,7 +48,7 @@ public class MessageProducerService {
         if (!cache.isEmpty()) {
             RabbitMessage msg = cache.poll();
             props.setTags(msg.getId());
-            getClient(props).getProcessingChannel()
+            getClient().getProcessingChannel(props)
                     .sendMessage(
                             createRequest(msg),
                             getCallbackConsumer(props)
@@ -60,19 +57,11 @@ public class MessageProducerService {
     }
 
     public void sendSomething(BrokerProperties props, String message) throws BrokerException {
-        getClient(props).getProcessingChannel().sendMessage(createRequest(message));
-    }
-
-    public void sendSomething(String message) throws BrokerException {
-        sendSomething(properties, message);
+        getClient().getProcessingChannel(props).sendMessage(createRequest(message));
     }
 
     public void notifyArrival(BrokerProperties props, String register) throws BrokerException {
-        getClient(props).getStatusChannel().sendMessage(createRequest(register));
-    }
-
-    public void notifyArrival(String register) throws BrokerException {
-        notifyArrival(properties, register);
+        getClient().getStatusChannel(props).sendMessage(createRequest(register));
     }
 
     private BrokerRequest createRequest(String message) {
@@ -95,23 +84,20 @@ public class MessageProducerService {
         }
     }
 
-    private RabbitMQBrokerClient getClient(BrokerProperties props) {
-        if (client == null) {
-            client = new RabbitMQBrokerClient(props);
-        }
-        return client;
+    private RabbitMQBrokerClient getClient() {
+        return RabbitMQBrokerClient.getInstance();
     }
 
     public QueueConsumer getCallbackConsumer(BrokerProperties props) throws BrokerException {
-        if (callbackConsumer == null) {
+//        if (callbackConsumer == null) {
             callbackConsumer = new RabbitMessageCallbackConsumer(
-                    getClient(props).getProcessingChannel().getChannel(),
+                    getClient().getProcessingChannel(props).getChannel(),
                     props.getTags(),
                     this,
                     props
             );
-        }
-        callbackConsumer.handleConsumeOk(props.getTags());
+//        }
+//        callbackConsumer.handleConsumeOk(props.getTags());
         return callbackConsumer;
     }
 

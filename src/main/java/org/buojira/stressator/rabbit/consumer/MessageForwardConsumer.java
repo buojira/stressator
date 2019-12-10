@@ -1,5 +1,6 @@
 package org.buojira.stressator.rabbit.consumer;
 
+import org.buojira.stressator.rabbit.BrokerProperties;
 import org.buojira.stressator.rabbit.service.MessageConsumerService;
 import org.buojira.stressator.rabbit.service.MessageProducerService;
 
@@ -10,13 +11,15 @@ import com.fluig.broker.exception.BrokerException;
 public class MessageForwardConsumer extends MessageConsumer {
 
     private MessageProducerService producerService;
+    private final BrokerProperties props;
     private boolean looseIt = false;
 
     public MessageForwardConsumer(ChannelVO channel,
-            String consumerTag,
+            BrokerProperties props,
             MessageConsumerService service,
             MessageProducerService producerService) {
-        super(channel, consumerTag, service);
+        super(channel, props.getTags(), service);
+        this.props = props;
         this.producerService = producerService;
     }
 
@@ -30,10 +33,10 @@ public class MessageForwardConsumer extends MessageConsumer {
                 if (looseIt) {
                     looseIt = false;
                 } else {
-                    producerService.notifyArrival(register);
+                    producerService.notifyArrival(props, register);
                 }
             } else {
-                producerService.notifyArrival(register);
+                producerService.notifyArrival(props, register);
             }
         } catch (BrokerException e) {
             e.printStackTrace();

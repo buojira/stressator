@@ -18,12 +18,12 @@ public class MessagesWithListenerIT extends StressatorBaseIT {
 
     @Before
     public void before() {
-        consumer.startupProcessingListener();
+        consumer.startupProcessingListener(getQAFluigIO());
     }
 
     @Test
     public void drill() throws BrokerException {
-        producer.sendSomething("Blá");
+        producer.sendSomething(getQAFluigIO(), "Blá");
     }
 
 }

@@ -4,18 +4,20 @@ import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.buojira.stressator.rabbit.PropCustomizer;
+
 public class ActionDecider {
 
     public static final String ACTION_TEST_RABBITMQ_DDS = "ddsrabbitmq";
+    public static final String ACTION_TEST_ATTACH = "attach";
     public static final String ACTION_TEST_SEND_N_WAIT = "sendnwait";
+    public static final String ACTION_TEST_MANY_CONNECTIONS = "stressconn";
     public static final String ACTION_CLEAR_RABBITMQ = "clearrabbitmq";
     public static final String BROKER_HOST = "broker.host";
     public static final String BROKER_PORT = "broker.port";
     public static final String BROKER_USER = "broker.username";
     public static final String BROKER_PASS = "broker.password";
-    public static final String APP_EXCHANGE = "application.exchange";
-    public static final String APP_QUEUE = "application.queue.name";
-    public static final String STATUS_QUEUE = "application.status.queue";
+    public static final String PREFIX = "rbbt.prefix";
     public static final String DURATION = "duration";
     public static final String DURATIONS = "durations";
     public static final String TOTALS = "totals";
@@ -25,6 +27,8 @@ public class ActionDecider {
     private boolean testRabbitMQDDS;
     private boolean clearRabbitMQ;
     private boolean sendnwait;
+    private boolean attach;
+    private boolean stressConnection;
     private String rabbitMQHost;
     private Number rabbitMQPort;
     private String rabbitMQUSER;
@@ -33,7 +37,10 @@ public class ActionDecider {
     private String rabbitAppQueue;
     private String rabbitStatusQueue;
 
+    private final PropCustomizer propCustomizer;
+
     public ActionDecider(String[] params) {
+        propCustomizer = new PropCustomizer();
         argLine = getArgLine(params);
 
         System.out.println(" ");
@@ -53,9 +60,16 @@ public class ActionDecider {
         rabbitMQPort = getNumericProperty(argLine, BROKER_PORT, null);
         rabbitMQUSER = getProperty(argLine, BROKER_USER, null);
         rabbitMQPassword = getProperty(argLine, BROKER_PASS, null);
-        rabbitAppExchange = getProperty(argLine, APP_EXCHANGE, null);
-        rabbitAppQueue = getProperty(argLine, APP_QUEUE, null);
-        rabbitStatusQueue = getProperty(argLine, STATUS_QUEUE, null);
+        String prefix = getRabbitPrefix();
+        if (prefix != null && !prefix.trim().isEmpty()) {
+            rabbitAppExchange = propCustomizer.getExchange(prefix);
+            rabbitAppQueue = propCustomizer.getQueue(prefix);
+            rabbitStatusQueue = propCustomizer.getCallbackQueue(prefix);
+        }
+    }
+
+    public String getRabbitPrefix() {
+        return getProperty(argLine, PREFIX, null);
     }
 
     private Number getNumericProperty(String argLine, String property, Number defaultValue) {
@@ -92,6 +106,8 @@ public class ActionDecider {
         testRabbitMQDDS = false;
         sendnwait = false;
         clearRabbitMQ = false;
+        attach = false;
+        stressConnection = false;
 
         for (int i = 0; i < actions.length; i++) {
             switch (actions[i].trim()) {
@@ -103,6 +119,12 @@ public class ActionDecider {
                     break;
                 case ACTION_TEST_SEND_N_WAIT:
                     sendnwait = true;
+                    break;
+                case ACTION_TEST_ATTACH:
+                    attach = true;
+                    break;
+                case ACTION_TEST_MANY_CONNECTIONS:
+                    stressConnection = true;
                     break;
             }
         }
@@ -208,4 +230,11 @@ public class ActionDecider {
         return sendnwait;
     }
 
+    public boolean isAttach() {
+        return attach;
+    }
+
+    public boolean isStressConnection() {
+        return stressConnection;
+    }
 }

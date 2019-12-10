@@ -2,8 +2,9 @@ package org.buojira.stressator;
 
 import java.text.ParseException;
 
-import org.buojira.stressator.rabbit.service.BrokerOverloadService;
 import org.buojira.stressator.rabbit.BrokerProperties;
+import org.buojira.stressator.rabbit.service.BrokerOverloadService;
+import org.buojira.stressator.rabbit.service.ParallelOverloadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,20 +16,27 @@ public class StressatorService {
     @Autowired
     private BrokerOverloadService overloadService;
 
+    @Autowired
+    private ParallelOverloadService parallelOverloadService;
+
     public StressatorService(BrokerProperties brokerProperties) {
         this.brokerProperties = brokerProperties;
     }
 
-    public void stress(ActionDecider actionDecider) throws ParseException {
+    public void stress(BrokerProperties brokerProperties, ActionDecider actionDecider) throws Exception {
         mergeProperties(actionDecider);
         if (actionDecider.isTestRabbitMQDDS()) {
-            stressRabbitMQ(actionDecider.getDuration());
+            stressRabbitMQ(brokerProperties, actionDecider.getDuration());
         } else if (actionDecider.isClearRabbitMQ()) {
             Number[] durations = actionDecider.getDurations();
             Number[] totals = actionDecider.getTotals();
             analyseRabbitServer(durations, totals);
         } else if (actionDecider.isSendNWait()) {
             stressButNotThatMuch(actionDecider.getDuration());
+        } else if (actionDecider.isAttach()) {
+            sendWithAttachmentsNWait(brokerProperties, actionDecider);
+        } else if (actionDecider.isStressConnection()) {
+            alwaysUseNewConnectionAndKeepItOpened(brokerProperties, actionDecider);
         }
     }
 
@@ -56,7 +64,7 @@ public class StressatorService {
         }
     }
 
-    private void stressRabbitMQ(Number duration) {
+    private void stressRabbitMQ(BrokerProperties brokerProperties, Number duration) {
 
         System.out.println(" ");
         System.out.println("---------------------------------------");
@@ -67,7 +75,7 @@ public class StressatorService {
         System.out.println(" ");
 
         try {
-            overloadService.ddsThresholdTest(duration);
+            overloadService.ddsThresholdTest(brokerProperties, duration);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -106,6 +114,32 @@ public class StressatorService {
             e.printStackTrace();
         }
 
+    }
+
+    private void sendWithAttachmentsNWait(BrokerProperties brokerProperties, ActionDecider actionDecider)
+            throws InterruptedException {
+
+        System.out.println(" ");
+        System.out.println("---------------------------------------");
+        System.out.println("---------------------------------------");
+        System.out.println(" send attachments and wait it return ");
+        System.out.println("---------------------------------------");
+        System.out.println("---------------------------------------");
+        System.out.println(" ");
+
+        parallelOverloadService.overloadRabbit(
+                actionDecider.getDuration(),
+                brokerProperties,
+                actionDecider.getRabbitPrefix()
+        );
+
+    }
+
+    private void alwaysUseNewConnectionAndKeepItOpened(BrokerProperties brokerProperties, ActionDecider actionDecider) {
+        parallelOverloadService.alwaysUseNewConnectionAndKeepItOpened(
+                brokerProperties,
+                actionDecider
+        );
     }
 
 }

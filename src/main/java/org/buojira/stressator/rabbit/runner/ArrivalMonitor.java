@@ -3,6 +3,7 @@ package org.buojira.stressator.rabbit.runner;
 import java.util.Calendar;
 import java.util.Map;
 
+import org.buojira.stressator.rabbit.BrokerProperties;
 import org.buojira.stressator.rabbit.MessageRepository;
 import org.buojira.stressator.rabbit.service.MessageProducerService;
 
@@ -11,9 +12,12 @@ import com.fluig.broker.exception.BrokerException;
 public class ArrivalMonitor implements Runnable {
 
     private final MessageProducerService producerService;
+    private final BrokerProperties properties;
 
-    public ArrivalMonitor(MessageProducerService producerService) {
+    public ArrivalMonitor(BrokerProperties props,
+            MessageProducerService producerService) {
         this.producerService = producerService;
+        this.properties = props;
     }
 
     @Override
@@ -34,7 +38,7 @@ public class ArrivalMonitor implements Runnable {
                     System.out.println(" **************** ");
 
                     try {
-                        producerService.sendSomething(key);
+                        producerService.sendSomething(properties, key);
                     } catch (BrokerException e) {
                         e.printStackTrace();
                     }

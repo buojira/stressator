@@ -32,7 +32,8 @@ public class QueueCleaner extends Worker {
         while (received.intValue() == 0) {
             partial1 = consumerService.getTotalAmmount();
 
-            System.out.println("p1:"
+            System.out.println(props.getExchangeName() +
+                    " - p1:"
                     + formatter.format(partial1)
                     + " | p2:"
                     + formatter.format(partial2));

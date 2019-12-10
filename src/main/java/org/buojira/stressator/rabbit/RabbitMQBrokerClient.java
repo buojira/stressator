@@ -1,5 +1,8 @@
 package org.buojira.stressator.rabbit;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import com.fluig.broker.BrokerClient;
 import com.fluig.broker.controller.ChannelController;
 import com.fluig.broker.domain.ChannelControllerDTO;
@@ -9,34 +12,54 @@ import com.fluig.broker.exception.BrokerException;
 
 public class RabbitMQBrokerClient {
 
-    private final BrokerProperties properties;
-    private ChannelController processingChannel;
-    private ChannelController statusChannel;
+    private static RabbitMQBrokerClient instance;
+
+    private final Map<String, ChannelController> processingChannels;
+    private final Map<String, ChannelController> statusChannels;
     private BrokerClient brokerClient;
 
-    public RabbitMQBrokerClient(BrokerProperties properties) {
-        this.properties = properties;
+    private RabbitMQBrokerClient() {
+        statusChannels = new TreeMap<>();
+        processingChannels = new TreeMap<>();
     }
 
-    public ChannelController getStatusChannel() throws BrokerException {
-        if (statusChannel == null) {
+    public static RabbitMQBrokerClient getInstance() {
+        if (instance == null) {
+            instance = new RabbitMQBrokerClient();
+        }
+        return instance;
+    }
 
+    public ChannelController getStatusChannel(BrokerProperties properties) throws BrokerException {
+        String key = getKey(properties);
+        ChannelController result = statusChannels.get(key);
+        if (result == null) {
             ChannelControllerDTO dto = ChannelControllerDTOBuilder.of()
                     .exchangeName(properties.getExchangeName())
                     .routingKey(properties.getBrokerStatusQueue())
                     .queueName(properties.getBrokerStatusQueue())
                     .build();
-
-            statusChannel = getBrokerClient()
+            result = getBrokerClient(properties)
                     .createDirectChannel(dto);
-
+            statusChannels.put(key, result);
+            System.out.println(" ");
+            System.out.println(" **************** ");
+            System.out.println(" **************** Callback ");
+            System.out.println(" ");
+            System.out.println("     Exchange: " + properties.getExchangeName());
+            System.out.println("        Queue: " + properties.getQueueName());
+            System.out.println(" ");
+            System.out.println(" **************** ");
+            System.out.println(" **************** ");
+            System.out.println(" ");
         }
-        return statusChannel;
+        return result;
     }
 
-    public ChannelController getProcessingChannel() throws BrokerException {
-
-        if (processingChannel == null) {
+    public ChannelController getProcessingChannel(BrokerProperties properties) throws BrokerException {
+        String key = getKey(properties);
+        ChannelController result = processingChannels.get(key);
+        if (result == null) {
 
             ChannelControllerDTO dto = ChannelControllerDTOBuilder.of()
                     .exchangeName(properties.getExchangeName())
@@ -45,16 +68,27 @@ public class RabbitMQBrokerClient {
                     .callbackQueueName(properties.getBrokerStatusQueue())
                     .build();
 
-            processingChannel = getBrokerClient()
+            result = getBrokerClient(properties)
                     .createDirectChannel(dto);
 
+            processingChannels.put(key, result);
+            System.out.println(" ");
+            System.out.println(" **************** ");
+            System.out.println(" **************** Processing ");
+            System.out.println(" ");
+            System.out.println("     Exchange: " + properties.getExchangeName());
+            System.out.println("        Queue: " + properties.getQueueName());
+            System.out.println(" Status Queue: " + properties.getBrokerStatusQueue());
+            System.out.println(" ");
+            System.out.println(" **************** ");
+            System.out.println(" **************** ");
+            System.out.println(" ");
+
         }
-
-        return processingChannel;
-
+        return result;
     }
 
-    public BrokerClient getBrokerClient() {
+    public BrokerClient getBrokerClient(BrokerProperties properties) {
 
         if (brokerClient == null) {
 
@@ -67,9 +101,6 @@ public class RabbitMQBrokerClient {
             System.out.println("         Port: " + properties.getBrokerPort());
             System.out.println("        Login: " + properties.getBrokerUserName());
             System.out.println("     Password: " + properties.getBrokerPassword());
-            System.out.println("     Exchange: " + properties.getExchangeName());
-            System.out.println("        Queue: " + properties.getQueueName());
-            System.out.println(" Status Queue: " + properties.getBrokerStatusQueue());
             System.out.println(" ");
             System.out.println(" **************** ");
             System.out.println(" **************** ");
@@ -89,6 +120,10 @@ public class RabbitMQBrokerClient {
 
         return brokerClient;
 
+    }
+
+    private String getKey(BrokerProperties props) {
+        return props.getExchangeName() + props.getQueueName();
     }
 
 }

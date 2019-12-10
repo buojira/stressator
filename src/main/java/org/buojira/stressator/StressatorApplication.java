@@ -2,6 +2,7 @@ package org.buojira.stressator;
 
 import java.text.ParseException;
 
+import org.buojira.stressator.rabbit.BrokerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,6 +19,8 @@ public class StressatorApplication {
     @Autowired
     private StressatorService stressatorService;
 
+    private BrokerProperties brokerProperties;
+
     private static String[] PARAMS;
 
     public static void main(String[] args) {
@@ -28,11 +31,13 @@ public class StressatorApplication {
         SpringApplication.run(StressatorApplication.class, args);
     }
 
-    public StressatorApplication(StressatorService stressatorService) {
+    public StressatorApplication(BrokerProperties brokerProperties,
+            StressatorService stressatorService) {
         this.stressatorService = stressatorService;
+        this.brokerProperties = brokerProperties;
         try {
-            stressatorService.stress(new ActionDecider(PARAMS));
-        } catch (ParseException e) {
+            stressatorService.stress(brokerProperties, new ActionDecider(PARAMS));
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

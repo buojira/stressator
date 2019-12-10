@@ -5,9 +5,9 @@ import java.net.UnknownHostException;
 import org.assertj.core.api.Assertions;
 import org.buojira.stressator.rabbit.BrokerProperties;
 import org.buojira.stressator.rabbit.MessageRepository;
-import org.buojira.stressator.rabbit.runner.QueueCleaner;
 import org.buojira.stressator.rabbit.runner.Worker;
 import org.buojira.stressator.rabbit.service.BrokerOverloadService;
+import org.buojira.stressator.rabbit.service.ParallelOverloadService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -18,25 +18,38 @@ public class MessageWarrantArrivalIT extends StressatorBaseIT {
     @Autowired
     private BrokerOverloadService target;
 
+    @Autowired
+    private ParallelOverloadService overloader;
+
+    @Test
+    public void overloadTest() throws InterruptedException {
+
+        BrokerProperties props = getQAFluigIO();
+        Number duration = 0.1;
+
+        overloader.overloadRabbit(duration, props, "A");
+    }
+
     @Test
     public void controlPayloadTest() throws InterruptedException, BrokerException, UnknownHostException {
-        target.sendAndControlPayload(getQAFluigIO(),10);
+        target.sendAndControlPayload(getQAFluigIO(), 10);
         Assertions.assertThat(true).isTrue();
     }
 
     @Test
     public void sendOneAtATime() throws InterruptedException {
+
         BrokerProperties props = getQAFluigIO();
+        Number duration = 0.1;
 
-        Worker sender = target.sendAndWait(props, 0.1);
+        Worker sender = target.sendAndWait(props, duration);
 
-        while (!sender.isFinished()) {
-            Thread.sleep(5000l);
-        }
+        Number waitingTime = (duration.floatValue() * 1000) + 5000;
+        Thread.sleep(waitingTime.longValue());
 
         Worker cleaner = target.clearQueues(props);
 
-        while (!cleaner.isFinished()) {
+        while (!sender.isFinished() && !cleaner.isFinished()) {
             Thread.sleep(5000l);
         }
 
@@ -51,21 +64,7 @@ public class MessageWarrantArrivalIT extends StressatorBaseIT {
 
     @Test
     public void justSend() throws BrokerException {
-        target.send(getQAFluigIO(),"bla", 226);
-    }
-
-    private BrokerProperties getQAFluigIO() {
-        BrokerProperties props = new BrokerProperties();
-        props.setBrokerHost("localhost");
-        props.setBrokerPort("5672");
-        props.setBrokerUserName("guest");
-        props.setBrokerPassword("guest");
-        props.setTags("stress_test");
-        props.setExchangeName("AAAEXCHANGETEST_0001");
-        props.setQueueName("AAAQUEUETEST_101001");
-        props.setBrokerStatusQueue("AAA-STATUSQI.V1");
-        props.setVirtualHost("/");
-        return props;
+        target.send(getQAFluigIO(), "bla", 226);
     }
 
 }

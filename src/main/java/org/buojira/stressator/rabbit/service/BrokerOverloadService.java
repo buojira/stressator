@@ -47,7 +47,7 @@ public class BrokerOverloadService {
         if (props != null) {
             producerService.sendSomething(props, key);
         } else {
-            producerService.sendSomething(key);
+            producerService.sendSomething(props, key);
         }
         if (messageCount % 5000 == 0) {
             System.out.println(Formatter.DECIMAL_FORMAT.format(messageCount) + " messages sent.");
@@ -127,7 +127,7 @@ public class BrokerOverloadService {
 
     }
 
-    public void ddsThresholdTest(Number duration) throws BrokerException, UnknownHostException {
+    public void ddsThresholdTest(BrokerProperties props, Number duration) throws Exception {
 
         NumberFormat formatter = Formatter.DECIMAL_FORMAT;
 
@@ -142,12 +142,13 @@ public class BrokerOverloadService {
         while ((current - beginning) < timeLimit) {
             messageCount++;
             current = Calendar.getInstance().getTimeInMillis();
-            producerService.sendSomething(hostName + "|" + messageCount);
+            producerService.sendSomething(props, hostName + "|" + messageCount);
             if (messageCount % 5000 == 0) {
 
                 System.out.println(formatter.format(messageCount) + " messages sent.");
 
             }
+            Thread.sleep(1l);
         }
         writeDDSReport(current - beginning, hostName, messageCount);
     }

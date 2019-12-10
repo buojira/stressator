@@ -1,10 +1,15 @@
 package org.buojira.stressator.rabbit.runner;
 
+import org.buojira.stressator.rabbit.BrokerProperties;
+import org.buojira.stressator.rabbit.PropCustomizer;
+
 public abstract class Worker implements Runnable {
 
     private boolean finished;
+    private final PropCustomizer propCustomizer;
 
     public Worker() {
+        propCustomizer = new PropCustomizer();
         this.finished = false;
     }
 
@@ -24,6 +29,10 @@ public abstract class Worker implements Runnable {
 
     public boolean isFinished() {
         return finished;
+    }
+
+    protected BrokerProperties customizeProps(BrokerProperties source, String prefix) {
+        return propCustomizer.customizeProps(source, prefix);
     }
 
 }

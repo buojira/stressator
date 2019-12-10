@@ -37,7 +37,7 @@ public class OverloadingTestIT extends StressatorBaseIT {
         while ((current - beginning) < TIME_LIMIT.longValue()) {
             messageCount++;
             current = Calendar.getInstance().getTimeInMillis();
-            producerService.sendSomething(hostName + "|" + messageCount);
+            producerService.sendSomething(getQAFluigIO(), hostName + "|" + messageCount);
             if (messageCount % 5000 == 0) {
                 System.out.println(formatter.format(messageCount) + " messages sent.");
             }
@@ -67,7 +67,7 @@ public class OverloadingTestIT extends StressatorBaseIT {
         final Number duration = sumUp(durations);
         final Number totalOfSentMessages = sumUp(totals);
 
-        consumerService.startupProcessingListener();
+        consumerService.startupProcessingListener(getQAFluigIO());
 
         int partial1;
         int partial2 = 0;

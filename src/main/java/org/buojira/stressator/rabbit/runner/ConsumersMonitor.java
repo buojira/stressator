@@ -22,14 +22,9 @@ public class ConsumersMonitor implements Runnable {
 
     @Override
     public void run() {
-        if (properties != null) {
-            consumerService.startupSecureProcessingListener(producerService, properties);
-            consumerService.startupStatusListener(properties);
-        } else {
-            consumerService.startupSecureProcessingListener(producerService);
-            consumerService.startupStatusListener();
-        }
-        new Thread(new ArrivalMonitor(producerService)).start();
+        consumerService.startupSecureProcessingListener(producerService, properties);
+        consumerService.startupStatusListener(properties);
+        new Thread(new ArrivalMonitor(properties, producerService)).start();
     }
 
 }
