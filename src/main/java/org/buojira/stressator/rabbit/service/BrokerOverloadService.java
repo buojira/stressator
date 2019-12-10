@@ -10,6 +10,7 @@ import org.buojira.stressator.Formatter;
 import org.buojira.stressator.rabbit.BrokerProperties;
 import org.buojira.stressator.rabbit.MessageRepository;
 import org.buojira.stressator.rabbit.runner.ConsumersMonitor;
+import org.buojira.stressator.rabbit.runner.ManyConnectionsWorker;
 import org.buojira.stressator.rabbit.runner.OneAtATimeSender;
 import org.buojira.stressator.rabbit.runner.QueueCleaner;
 import org.buojira.stressator.rabbit.runner.Worker;
@@ -27,6 +28,12 @@ public class BrokerOverloadService {
     @Autowired
     private MessageConsumerService consumerService;
 
+    private boolean alwaysUseNewConnection;
+
+    public BrokerOverloadService() {
+        alwaysUseNewConnection = false;
+    }
+
     public Map<String, Number> startUpListeners(BrokerProperties properties) {
 
         new Thread(
@@ -39,6 +46,17 @@ public class BrokerOverloadService {
                 .getInstance()
                 .getQueueAgeMap();
 
+    }
+
+    public void alwaysUseNewConnectionAndKeepItOpened(BrokerProperties brokerProperties, int index) {
+        new Thread(
+                new ManyConnectionsWorker(
+                        brokerProperties,
+                        index,
+                        producerService,
+                        consumerService
+                )
+        ).start();
     }
 
     public String send(BrokerProperties props, String hostName, long messageCount) throws BrokerException {
@@ -227,5 +245,4 @@ public class BrokerOverloadService {
         System.out.println("------------------------------------------");
         System.out.println(" ");
     }
-
 }

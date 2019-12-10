@@ -38,7 +38,7 @@
         <!-- Testing libs -->
         <mockito.version>2.23.4</mockito.version>
         <testcontainers.version>1.12.1</testcontainers.version>
-        <broker.jee.client.version>1.0.4-SNAPSHOT</broker.jee.client.version>
+        <broker.jee.client.version>1.0.5-SNAPSHOT</broker.jee.client.version>
 
         <!-- Building Plugins -->
         <flatten.plugin.version>1.1.0</flatten.plugin.version>

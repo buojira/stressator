@@ -46,7 +46,7 @@
     <modelmapper.version>1.1.3</modelmapper.version>
     <mockito.version>2.23.4</mockito.version>
     <check.style>false</check.style>
-    <broker.jee.client.version>1.0.4-SNAPSHOT</broker.jee.client.version>
+    <broker.jee.client.version>1.0.5-SNAPSHOT</broker.jee.client.version>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <compiler.plugin.version>3.8.0</compiler.plugin.version>
     <testcontainers.version>1.12.1</testcontainers.version>

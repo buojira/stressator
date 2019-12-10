@@ -24,14 +24,14 @@ public class MessageConsumerService {
         counterMap = new TreeMap<>();
     }
 
-    public void startupProcessingListener(BrokerProperties props) {
+    public void startupProcessingListener(BrokerProperties props, boolean forceNewConnection) {
         try {
 
             totalAmmount = 0;
-            ChannelController channelController = getClient().getProcessingChannel(props);
+            ChannelController channelController = getClient().getProcessingChannel(props, forceNewConnection);
             MessageConsumer consumer = new MessageConsumer(
                     channelController.getChannel(),
-                    props.getExchangeName() + "_tag", //props.getTags(),
+                    props.getExchangeName() + "_tag",
                     this
             );
             channelController.addListener(consumer);
@@ -41,6 +41,10 @@ public class MessageConsumerService {
         } catch (BrokerException e) {
             e.printStackTrace();
         }
+    }
+
+    public void startupProcessingListener(BrokerProperties props) {
+        startupProcessingListener(props, false);
     }
 
     public void startupSecureProcessingListener(MessageProducerService producerService, BrokerProperties props) {

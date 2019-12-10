@@ -57,8 +57,14 @@ public class RabbitMQBrokerClient {
     }
 
     public ChannelController getProcessingChannel(BrokerProperties properties) throws BrokerException {
+        return getProcessingChannel(properties, false);
+    }
+
+    public ChannelController getProcessingChannel(BrokerProperties properties, boolean forceNewConnection) throws BrokerException {
+
         String key = getKey(properties);
         ChannelController result = processingChannels.get(key);
+
         if (result == null) {
 
             ChannelControllerDTO dto = ChannelControllerDTOBuilder.of()
@@ -68,10 +74,11 @@ public class RabbitMQBrokerClient {
                     .callbackQueueName(properties.getBrokerStatusQueue())
                     .build();
 
-            result = getBrokerClient(properties)
+            result = getBrokerClient(properties, forceNewConnection)
                     .createDirectChannel(dto);
 
             processingChannels.put(key, result);
+
             System.out.println(" ");
             System.out.println(" **************** ");
             System.out.println(" **************** Processing ");
@@ -89,6 +96,10 @@ public class RabbitMQBrokerClient {
     }
 
     public BrokerClient getBrokerClient(BrokerProperties properties) {
+        return getBrokerClient(properties, false);
+    }
+
+    public BrokerClient getBrokerClient(BrokerProperties properties, boolean forceNewConnection) {
 
         if (brokerClient == null) {
 
@@ -113,6 +124,7 @@ public class RabbitMQBrokerClient {
                             .port(Integer.valueOf(properties.getBrokerPort()))
                             .userName(properties.getBrokerUserName())
                             .password(properties.getBrokerPassword())
+                            .alwaysUseNewConnection(forceNewConnection)
                             .build()
             );
 

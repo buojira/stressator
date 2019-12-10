@@ -1,11 +1,10 @@
 package org.buojira.stressator.rabbit.service;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.buojira.stressator.ActionDecider;
 import org.buojira.stressator.rabbit.BrokerProperties;
+import org.buojira.stressator.rabbit.PropCustomizer;
 import org.buojira.stressator.rabbit.runner.OverloadWorker;
 import org.buojira.stressator.rabbit.runner.Worker;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +14,14 @@ import org.springframework.stereotype.Service;
 public class ParallelOverloadService {
 
     private BrokerProperties brokerProperties;
+    private PropCustomizer propCustomizer;
 
     @Autowired
     private BrokerOverloadService overloader;
 
     public ParallelOverloadService(BrokerProperties brokerProperties) {
         this.brokerProperties = brokerProperties;
+        propCustomizer = new PropCustomizer();
     }
 
     public void overloadRabbit(Number duration, BrokerProperties properties, String... types)
@@ -33,15 +34,26 @@ public class ParallelOverloadService {
 
     }
 
-    public void alwaysUseNewConnectionAndKeepItOpened(BrokerProperties brokerProperties, ActionDecider actionDecider) throws ParseException {
-        Number[] totals = actionDecider.getTotals();
-        if (totals != null && totals.length > 0) {
-            Number connections = totals[0];
-            getNewConnection(brokerProperties);
-        }
-    }
+    public void alwaysUseNewConnectionAndKeepItOpened(
+            BrokerProperties brokerProperties,
+            Number connectionsAmount)
+            throws InterruptedException {
 
-    private void getNewConnection(BrokerProperties brokerProperties) {
+        for (int index = 0; index < connectionsAmount.intValue(); index++) {
+            BrokerProperties props = propCustomizer.customizeProps(
+                    brokerProperties,
+                    "nConn" + index);
+            props.setBrokerStatusQueue(null);
+            overloader.alwaysUseNewConnectionAndKeepItOpened(
+                    props,
+                    index
+            );
+        }
+
+        while (true) {
+            System.out.println("I am alive... do not worry");
+            Thread.sleep(2000l);
+        }
 
     }
 

@@ -1,7 +1,5 @@
 package org.buojira.stressator;
 
-import java.text.ParseException;
-
 import org.buojira.stressator.rabbit.BrokerProperties;
 import org.buojira.stressator.rabbit.service.BrokerOverloadService;
 import org.buojira.stressator.rabbit.service.ParallelOverloadService;
@@ -135,11 +133,22 @@ public class StressatorService {
 
     }
 
-    private void alwaysUseNewConnectionAndKeepItOpened(BrokerProperties brokerProperties, ActionDecider actionDecider) {
+    private void alwaysUseNewConnectionAndKeepItOpened(BrokerProperties brokerProperties, ActionDecider actionDecider)
+            throws Exception {
+
+        System.out.println(" ");
+        System.out.println("---------------------------------------");
+        System.out.println("---------------------------------------");
+        System.out.println(" Using as much connections as it can");
+        System.out.println("---------------------------------------");
+        System.out.println("---------------------------------------");
+        System.out.println(" ");
+
         parallelOverloadService.alwaysUseNewConnectionAndKeepItOpened(
                 brokerProperties,
-                actionDecider
+                actionDecider.getTotals()[0]
         );
+
     }
 
 }

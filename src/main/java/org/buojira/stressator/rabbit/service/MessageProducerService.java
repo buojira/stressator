@@ -56,8 +56,25 @@ public class MessageProducerService {
         }
     }
 
+    public void sendSomething(BrokerProperties props, String message, boolean forceNewConnection)
+            throws BrokerException {
+
+        BrokerRequest request = createRequest(message);
+
+        getClient()
+                .getProcessingChannel(
+                        props,
+                        forceNewConnection
+                )
+                .sendMessage(request);
+
+    }
+
     public void sendSomething(BrokerProperties props, String message) throws BrokerException {
-        getClient().getProcessingChannel(props).sendMessage(createRequest(message));
+        sendSomething(
+                props,
+                message,
+                false);
     }
 
     public void notifyArrival(BrokerProperties props, String register) throws BrokerException {
