@@ -73,7 +73,7 @@ public class OverloadingTestIT extends StressatorBaseIT {
         int partial2 = 0;
         Number received = 0;
         while (received.intValue() == 0) {
-            partial1 = consumerService.getTotalAmmount();
+            partial1 = consumerService.getTotalAmount();
 
             System.out.println("p1:"
                     + formatter.format(partial1)
@@ -81,7 +81,7 @@ public class OverloadingTestIT extends StressatorBaseIT {
                     + formatter.format(partial2));
 
             if (partial2 > 0 && partial1 == partial2) {
-                received = consumerService.getTotalAmmount();
+                received = consumerService.getTotalAmount();
             } else {
                 partial2 = partial1;
             }

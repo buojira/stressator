@@ -28,12 +28,6 @@ public class BrokerOverloadService {
     @Autowired
     private MessageConsumerService consumerService;
 
-    private boolean alwaysUseNewConnection;
-
-    public BrokerOverloadService() {
-        alwaysUseNewConnection = false;
-    }
-
     public Map<String, Number> startUpListeners(BrokerProperties properties) {
 
         new Thread(
@@ -245,4 +239,5 @@ public class BrokerOverloadService {
         System.out.println("------------------------------------------");
         System.out.println(" ");
     }
+
 }

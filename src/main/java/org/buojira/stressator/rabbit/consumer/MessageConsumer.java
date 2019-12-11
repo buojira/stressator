@@ -18,13 +18,13 @@ public class MessageConsumer extends StressatorBaseConsumer {
     public void handleDelivery(BrokerRequestHeader brokerRequestHeader, String register) {
         String[] split = register.split("\\|");
         countMessage(split[0]);
-        if (getTotalAmmount() % 10000 == 0) {
+        if (getTotalAmount() % 10000 == 0) {
             System.out.println(register);
         }
     }
 
-    protected int getTotalAmmount() {
-        return service.getTotalAmmount();
+    protected int getTotalAmount() {
+        return service.getTotalAmount();
     }
 
     protected void countMessage(String host) {

@@ -26,8 +26,8 @@ public class ManyConnectionsWorker extends Worker {
     protected void work() throws Exception {
         consumerService.startupProcessingListener(brokerProperties, true);
         while (true) {
-            producerService.sendSomething(brokerProperties, "messagem number " + index, true);
-            Thread.sleep(2000l);
+            producerService.sendSomething(brokerProperties, "message number " + index, true);
+            Thread.sleep(10000l);
         }
     }
 

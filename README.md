@@ -19,3 +19,6 @@ java -jar target/stressator.jar action=sendnwait duration=0.01
 
 # Send message with random attachments and wait for its return
 java -jar target/stressator.jar action=attach duration=0.01 rbbt.prefix=A
+
+# Creates many connections
+java -jar target/stressator.jar action=stressconn totals=10 rbbt.prefix=nConn

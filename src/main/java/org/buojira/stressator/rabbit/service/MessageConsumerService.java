@@ -94,7 +94,7 @@ public class MessageConsumerService {
         }
     }
 
-    public int getTotalAmmount() {
+    public int getTotalAmount() {
         return totalAmmount;
     }
 
